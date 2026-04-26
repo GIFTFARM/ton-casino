@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { TonConnectProvider } from "@/lib/ton-connect";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -24,8 +25,10 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
     >
       <body className={`${inter.variable} min-h-full flex flex-col bg-[#1E1F22] text-white`}>
-        <Header />
-        <main className="flex-1">{children}</main>
+        <TonConnectProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+        </TonConnectProvider>
       </body>
     </html>
   );

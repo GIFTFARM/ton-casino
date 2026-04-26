@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { getTonConnectUI } from '@/lib/ton-connect';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTonConnect } from './ton-connect';
 
 export interface WalletState {
   isConnected: boolean;
@@ -12,6 +12,7 @@ export interface WalletState {
 }
 
 export function useTonWallet() {
+  const tonConnect = useRef(useTonConnect());
   const [state, setState] = useState<WalletState>({
     isConnected: false,
     walletAddress: null,
@@ -23,7 +24,7 @@ export function useTonWallet() {
   const connect = useCallback(async () => {
     setState(prev => ({ ...prev, isConnecting: true, error: null }));
     try {
-      await getTonConnectUI().connectWallet();
+      await tonConnect.current.connectWallet();
     } catch (err) {
       setState(prev => ({
         ...prev,
@@ -34,17 +35,15 @@ export function useTonWallet() {
   }, []);
 
   const disconnect = useCallback(() => {
-    getTonConnectUI().disconnect();
+    tonConnect.current.disconnect();
   }, []);
 
   useEffect(() => {
-    const ui = getTonConnectUI();
-
-    const checkConnection = async () => {
-      if (ui.account?.address) {
+    const checkConnection = () => {
+      if (tonConnect.current.account?.address) {
         setState({
           isConnected: true,
-          walletAddress: ui.account.address,
+          walletAddress: tonConnect.current.account.address,
           balance: null,
           isConnecting: false,
           error: null,
@@ -54,7 +53,7 @@ export function useTonWallet() {
 
     checkConnection();
 
-    const unsubscribe = ui.onStatusChange((wallet) => {
+    const unsubscribe = tonConnect.current.onStatusChange((wallet) => {
       if (wallet) {
         setState({
           isConnected: true,
