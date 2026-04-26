@@ -1,7 +1,7 @@
 {
-  "url": "https://ton.org",
+  "url": "https://ton-casino.vercel.app",
   "name": "TON Casino",
-  "iconUrl": "https://your-domain.com/icon.png",
-  "termsOfUseUrl": "https://your-domain.com/terms",
-  "privacyPolicyUrl": "https://your-domain.com/privacy"
+  "iconUrl": "https://ton-casino.vercel.app/icon.png",
+  "termsOfUseUrl": "https://ton-casino.vercel.app/terms",
+  "privacyPolicyUrl": "https://ton-casino.vercel.app/privacy"
 }
