@@ -16,7 +16,7 @@ let tonConnectInstance: TonConnectUI | null = null;
 function getTonConnect(): TonConnectUI {
   if (!tonConnectInstance) {
     tonConnectInstance = new TonConnectUI({
-      manifestUrl: process.env.NEXT_PUBLIC_MANIFEST_URL || 'https://ton-casino.vercel.app/tonconnect-manifest.json',
+      manifestUrl: '/tonconnect-manifest.json',
     });
   }
   return tonConnectInstance;
