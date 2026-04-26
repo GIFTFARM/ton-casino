@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useTonConnect } from './ton-connect';
+import { TonConnectUI } from '@tonconnect/ui';
 
 export interface WalletState {
   isConnected: boolean;
@@ -11,20 +11,33 @@ export interface WalletState {
   error: string | null;
 }
 
+let tonConnectInstance: TonConnectUI | null = null;
+
+function getTonConnect(): TonConnectUI {
+  if (!tonConnectInstance) {
+    tonConnectInstance = new TonConnectUI({
+      manifestUrl: process.env.NEXT_PUBLIC_MANIFEST_URL || 'https://ton-casino.vercel.app/tonconnect-manifest.json',
+    });
+  }
+  return tonConnectInstance;
+}
+
 export function useTonWallet() {
-  const tonConnect = useRef(useTonConnect());
-  const [state, setState] = useState<WalletState>({
-    isConnected: false,
-    walletAddress: null,
-    balance: null,
-    isConnecting: false,
-    error: null,
+  const [state, setState] = useState<WalletState>(() => {
+    const tc = getTonConnect();
+    return {
+      isConnected: !!tc.account?.address,
+      walletAddress: tc.account?.address || null,
+      balance: null,
+      isConnecting: false,
+      error: null,
+    };
   });
 
   const connect = useCallback(async () => {
     setState(prev => ({ ...prev, isConnecting: true, error: null }));
     try {
-      await tonConnect.current.connectWallet();
+      await getTonConnect().connectWallet();
     } catch (err) {
       setState(prev => ({
         ...prev,
@@ -35,25 +48,13 @@ export function useTonWallet() {
   }, []);
 
   const disconnect = useCallback(() => {
-    tonConnect.current.disconnect();
+    getTonConnect().disconnect();
   }, []);
 
   useEffect(() => {
-    const checkConnection = () => {
-      if (tonConnect.current.account?.address) {
-        setState({
-          isConnected: true,
-          walletAddress: tonConnect.current.account.address,
-          balance: null,
-          isConnecting: false,
-          error: null,
-        });
-      }
-    };
-
-    checkConnection();
-
-    const unsubscribe = tonConnect.current.onStatusChange((wallet) => {
+    const tc = getTonConnect();
+    
+    const unsubscribe = tc.onStatusChange((wallet) => {
       if (wallet) {
         setState({
           isConnected: true,
